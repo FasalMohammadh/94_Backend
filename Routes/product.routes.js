@@ -96,7 +96,14 @@ router.delete('/:id', async (req, res) => {
     await Product.deleteOne({ _id: id });
 
     // deletes the relevant images
-    deleteImages(await Product.findById(id));
+    const product = await Product.findById(id);
+    if (product?.image) {
+      product.image.forEach(imagePath =>
+        fs.unlink(imagePath, error => {
+          if (error) throw err;
+        })
+      );
+    }
 
     res.sendStatus(200);
   } catch (error) {
